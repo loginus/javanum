@@ -100,6 +100,23 @@ public class Matrix {
 		return result;
 	}
 
+	public double[] solve(double[][] a, double[] b) {
+		LUDecomposition lu = lu(a);
+		double[] z = solveTriangle(lu.getMatrixL(), b, true);
+		double[] x = solveTriangle(lu.getMatrixU(), z, false);
+		return x;
+	}
+
+	public double[][] transpose(double[][] a) {
+		double[][] at = new double[a[0].length][a.length];
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a[0].length; j++) {
+				at[j][i] = a[i][j];
+			}
+		}
+		return at;
+	}
+
 	public String toString(double[][] matrix) {
 		NumberFormat format = NumberFormat.getInstance();
 		format.setRoundingMode(RoundingMode.HALF_UP);
@@ -113,6 +130,29 @@ public class Matrix {
 			sb.append('\n');
 		}
 		return sb.toString();
+	}
+
+	public String toString(double[] vector) {
+		double[][] matrix = new double[][] { vector };
+		return toString(matrix);
+	}
+
+	private double[] solveTriangle(double[][] a, double[] b, boolean lower) {
+		double[] z = new double[b.length];
+		for (int i = 0; i < b.length; i++) {
+			int rowIndex = getIndex(i, b.length, lower);
+			double sum = 0;
+			for (int k = 0; k < i; k++) {
+				int columnIndex = getIndex(k, b.length, lower);
+				sum += a[rowIndex][columnIndex] * z[columnIndex];
+			}
+			z[rowIndex] = (b[rowIndex] - sum) / a[rowIndex][rowIndex];
+		}
+		return z;
+	}
+
+	private int getIndex(int index, int length, boolean lower) {
+		return lower ? index : length - 1 - index;
 	}
 
 	public static class LUDecomposition {

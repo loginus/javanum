@@ -3,6 +3,7 @@ package org.wterliko.javanum;
 import static org.junit.Assert.fail;
 import static org.wterliko.javanum.test.NumericTestUtils.assertMartixEquals;
 import static org.wterliko.javanum.test.NumericTestUtils.assertValueClose;
+import static org.wterliko.javanum.test.NumericTestUtils.assertVectorEquals;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -89,5 +90,35 @@ public class TestMatrix {
 		double[][] matrix = { { 5, 3, 2 }, { 1, 2, 0 }, { 3, 0, 4 } };
 		System.out.println(subject.toString(matrix));
 		assertValueClose(16, subject.det(matrix));
+	}
+
+	@Test
+	public void testSolve() throws Exception {
+		double[][] matrix = { { 5, 3, 2 }, { 1, 2, 0 }, { 3, 0, 4 } };
+		double[] b = { 10, 5, -2 };
+		double[] result = subject.solve(matrix, b);
+		System.out.println(subject.toString(matrix));
+		System.out.println(subject.toString(b));
+		assertVectorEquals(
+				new double[] { 7.0 / 4.0, 13.0 / 8.0, -29.0 / 16.0 }, result);
+	}
+
+	@Test
+	public void testTransposeSimple() throws Exception {
+		double[][] a = new double[][] { { 2, 3, 1, 4 }, { -1, 2, 0, 1 },
+				{ 2, 2, 0, 1 } };
+		double[][] transposed = subject.transpose(a);
+		double[][] expetced = new double[][] { { 2, -1, 2 }, { 3, 2, 2 },
+				{ 1, 0, 0 }, { 4, 1, 1 } };
+		assertMartixEquals(expetced, transposed);
+	}
+
+	@Test
+	public void testTranspose2x() throws Exception {
+		double[][] a = new double[][] { { 2, 3, 1, 4 }, { -1, 2, 0, 1 },
+				{ 2, 2, 0, 1 } };
+		double[][] transposed1 = subject.transpose(a);
+		double[][] transposed2 = subject.transpose(transposed1);
+		assertMartixEquals(a, transposed2);
 	}
 }

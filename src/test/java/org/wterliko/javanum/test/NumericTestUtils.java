@@ -22,9 +22,13 @@ public class NumericTestUtils {
 		assertEquals(expected.length, actual.length);
 		assertEquals(expected[0].length, actual[0].length);
 		for (int i = 0; i < actual.length; i++) {
-			for (int j = 0; j < actual[0].length; j++) {
-				assertValueClose(expected[i][j], actual[i][j]);
-			}
+			assertVectorEquals(expected[i], actual[i]);
+		}
+	}
+
+	public static void assertVectorEquals(double[] expected, double[] actual) {
+		for (int i = 0; i < actual.length; i++) {
+			assertValueClose(expected[i], actual[i]);
 		}
 	}
 }
