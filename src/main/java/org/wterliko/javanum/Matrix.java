@@ -3,13 +3,15 @@ package org.wterliko.javanum;
 import java.math.RoundingMode;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
+import java.util.Set;
 
 public class Matrix {
 
 	/**
 	 * LU decompostion with Doolittle's method.
 	 * 
-	 * TOThis implementation is slow approx 3x slower than Jama
+	 * TODO This implementation is slow for bigger matrices approx 3x slower
+	 * than Jama for 500x500
 	 * 
 	 * @param matrix
 	 */
@@ -168,6 +170,31 @@ public class Matrix {
 		double[][] matrixU = transpose(matrixL);
 		result.setMatrixU(matrixU);
 		return result;
+	}
+
+	public double minor(double[][] matix, Set<Integer> columnsToEliminate,
+			Set<Integer> rowsToEliminate) {
+		assert matix.length > rowsToEliminate.size();
+		assert matix[0].length > columnsToEliminate.size();
+		double[][] resultMatrix = new double[matix.length
+				- rowsToEliminate.size()][matix[0].length
+				- columnsToEliminate.size()];
+		int k = 0;
+		for (int i = 0; i < matix.length; i++) {
+			if (rowsToEliminate.contains(i)) {
+				continue;
+			}
+			int l = 0;
+			for (int j = 0; j < matix[0].length; j++) {
+				if (columnsToEliminate.contains(j)) {
+					continue;
+				}
+				resultMatrix[k][l++] = matix[i][j];
+			}
+			k++;
+		}
+		System.out.println(toString(resultMatrix));
+		return det(resultMatrix);
 	}
 
 	public String toString(double[][] matrix) {

@@ -8,7 +8,9 @@ import static org.wterliko.javanum.test.NumericTestUtils.assertValueClose;
 import static org.wterliko.javanum.test.NumericTestUtils.assertVectorEquals;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -155,14 +157,39 @@ public class TestMatrix {
 	}
 
 	@Test
+	public void testCholeskiTransposition() throws Exception {
+		double[][] matrix = new double[][] { { 5, 3, 1 }, { 3, 2, 7 },
+				{ 1, 7, 8 } };
+		System.out.println(subject.toString(matrix));
+		LUDecomposition choleski = subject.choleski(matrix);
+		double[][] transposedL = subject.transpose(choleski.getMatrixL());
+		assertMartixEquals(choleski.getMatrixU(), transposedL);
+	}
+
+	@Test
+	public void testCholeskiMultiplication() throws Exception {
+		double[][] matrix = new double[][] { { 1, 5, 9 }, { 5, 34, 54 },
+				{ 9, 54, 91 } };
+		System.out.println(subject.toString(matrix));
+		LUDecomposition choleski = subject.choleski(matrix);
+		double[][] actual = subject.multiply(choleski.getMatrixL(),
+				choleski.getMatrixU());
+		System.out.println(subject.toString(matrix));
+		System.out.println(subject.toString(choleski.getMatrixL()));
+		System.out.println(subject.toString(choleski.getMatrixU()));
+		System.out.println(subject.toString(actual));
+		assertMartixEquals(matrix, actual);
+	}
+
+	@Test
 	public void testPerformance() throws Exception {
 		List<double[][]> matrices = new ArrayList<double[][]>();
 		for (int i = 0; i < 100; i++) {
-			matrices.add(subject.randomMatrix(500, 500));
+			matrices.add(subject.randomMatrix(2, 2));
 		}
 		List<double[]> vectors = new ArrayList<double[]>();
 		for (int i = 0; i < 100; i++) {
-			vectors.add(subject.randomVector(500));
+			vectors.add(subject.randomVector(2));
 		}
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 100; i++) {
@@ -176,12 +203,12 @@ public class TestMatrix {
 	public void testJama() throws Exception {
 		List<Jama.Matrix> matrices = new ArrayList<Jama.Matrix>();
 		for (int i = 0; i < 100; i++) {
-			Jama.Matrix m = new Jama.Matrix(subject.randomMatrix(500, 500));
+			Jama.Matrix m = new Jama.Matrix(subject.randomMatrix(2, 2));
 			matrices.add(m);
 		}
 		List<Jama.Matrix> vectors = new ArrayList<Jama.Matrix>();
 		for (int i = 0; i < 100; i++) {
-			vectors.add(new Jama.Matrix(subject.randomVector(500), 500));
+			vectors.add(new Jama.Matrix(subject.randomVector(2), 2));
 		}
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 100; i++) {
@@ -189,5 +216,31 @@ public class TestMatrix {
 		}
 		long end = System.currentTimeMillis();
 		System.out.println(end - start);
+	}
+
+	@Test
+	public void testMinor() throws Exception {
+		double[][] a = new double[][] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } };
+		Set<Integer> columnsToEliminate = new HashSet<Integer>();
+		columnsToEliminate.add(2);
+		Set<Integer> rowsToEliminate = new HashSet<Integer>();
+		rowsToEliminate.add(2);
+		System.out.println(subject.toString(a));
+		assertValueClose(-3,
+				subject.minor(a, columnsToEliminate, rowsToEliminate));
+	}
+
+	@Test
+	public void testMinor2Rows() throws Exception {
+		double[][] a = new double[][] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } };
+		Set<Integer> columnsToEliminate = new HashSet<Integer>();
+		columnsToEliminate.add(2);
+		columnsToEliminate.add(0);
+		Set<Integer> rowsToEliminate = new HashSet<Integer>();
+		rowsToEliminate.add(2);
+		rowsToEliminate.add(1);
+		System.out.println(subject.toString(a));
+		assertValueClose(2,
+				subject.minor(a, columnsToEliminate, rowsToEliminate));
 	}
 }
