@@ -101,8 +101,7 @@ public class TestDerivate {
 			public double evaluate(double[] args) {
 				double x = args[0];
 				double y = args[1];
-				double value = 3 * x * x * x * x * x - 4 * y * y * y * y + 5
-						* x * x * x - 6 * y * y + 7 * x - 8 + 3 * x * x * y;
+				double value = 3 * x * x - 2 * y + 3 * x - 1 + 3 * x * x * y;
 				return value;
 			}
 		};
@@ -115,7 +114,7 @@ public class TestDerivate {
 				return value;
 			}
 		};
-		test2Devivate(poly, poly1, -10, 10);
+		test2Devivate(poly, poly1, -Math.PI, Math.PI);
 	}
 
 	private void testValues(Function f, Function f1, double xmin, double xmax) {

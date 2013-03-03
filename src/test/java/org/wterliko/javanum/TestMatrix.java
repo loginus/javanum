@@ -199,24 +199,25 @@ public class TestMatrix {
 		System.out.println(end - start);
 	}
 
-	@Test
-	public void testJama() throws Exception {
-		List<Jama.Matrix> matrices = new ArrayList<Jama.Matrix>();
-		for (int i = 0; i < 100; i++) {
-			Jama.Matrix m = new Jama.Matrix(subject.randomMatrix(2, 2));
-			matrices.add(m);
-		}
-		List<Jama.Matrix> vectors = new ArrayList<Jama.Matrix>();
-		for (int i = 0; i < 100; i++) {
-			vectors.add(new Jama.Matrix(subject.randomVector(2), 2));
-		}
-		long start = System.currentTimeMillis();
-		for (int i = 0; i < 100; i++) {
-			matrices.get(i).lu();
-		}
-		long end = System.currentTimeMillis();
-		System.out.println(end - start);
-	}
+	//
+	// @Test
+	// public void testJama() throws Exception {
+	// List<Jama.Matrix> matrices = new ArrayList<Jama.Matrix>();
+	// for (int i = 0; i < 100; i++) {
+	// Jama.Matrix m = new Jama.Matrix(subject.randomMatrix(2, 2));
+	// matrices.add(m);
+	// }
+	// List<Jama.Matrix> vectors = new ArrayList<Jama.Matrix>();
+	// for (int i = 0; i < 100; i++) {
+	// vectors.add(new Jama.Matrix(subject.randomVector(2), 2));
+	// }
+	// long start = System.currentTimeMillis();
+	// for (int i = 0; i < 100; i++) {
+	// matrices.get(i).lu();
+	// }
+	// long end = System.currentTimeMillis();
+	// System.out.println(end - start);
+	// }
 
 	@Test
 	public void testMinor() throws Exception {
