@@ -7,7 +7,9 @@ import java.text.NumberFormat;
 public class Matrix {
 
 	/**
-	 * LU decompostion with Doolittle's method
+	 * LU decompostion with Doolittle's method.
+	 * 
+	 * TOThis implementation is slow approx 3x slower than Jama
 	 * 
 	 * @param matrix
 	 */
@@ -16,25 +18,21 @@ public class Matrix {
 		double[][] matrixU = new double[source.length][source[0].length];
 		for (int i = 0; i < source.length; i++) {
 			for (int j = 0; j < source[0].length; j++) {
-				if (j < i) {
-					matrixU[i][j] = Double.valueOf(0);
-				} else {
-					double sum = 0;
+				if (j >= i) {
+					double sumU = 0;
 					for (int k = 0; k < i; k++) {
-						sum += matrixL[i][k] * matrixU[k][j];
+						sumU += matrixL[i][k] * matrixU[k][j];
 					}
-					matrixU[i][j] = source[i][j] - sum;
-				}
-				if (j < i) {
-					matrixL[j][i] = Double.valueOf(0);
-				} else if (j == i) {
-					matrixL[j][i] = Double.valueOf(1);
-				} else {
-					double sum = 0;
-					for (int k = 0; k < i; k++) {
-						sum += matrixL[j][k] * matrixU[k][i];
+					matrixU[i][j] = source[i][j] - sumU;
+					if (j == i) {
+						matrixL[j][i] = 1;
+					} else {
+						double sumL = 0;
+						for (int k = 0; k < i; k++) {
+							sumL += matrixL[j][k] * matrixU[k][i];
+						}
+						matrixL[j][i] = (source[j][i] - sumL) / matrixU[i][i];
 					}
-					matrixL[j][i] = (source[j][i] - sum) / matrixU[i][i];
 				}
 			}
 		}
@@ -90,6 +88,14 @@ public class Matrix {
 		return matrix;
 	}
 
+	public double[] randomVector(int rows) {
+		double[] vector = new double[rows];
+		for (int i = 0; i < rows; i++) {
+			vector[i] = Math.random();
+		}
+		return vector;
+	}
+
 	public double[][] scalarMultiply(double a, double[][] source) {
 		double[][] result = ArrayUtils.cloneArray(source);
 		for (int i = 0; i < result.length; i++) {
@@ -101,6 +107,8 @@ public class Matrix {
 	}
 
 	public double[] solve(double[][] a, double[] b) {
+		assert b.length == a.length;
+		assert a.length == a[0].length;
 		LUDecomposition lu = lu(a);
 		double[] z = solveTriangle(lu.getMatrixL(), b, true);
 		double[] x = solveTriangle(lu.getMatrixU(), z, false);
@@ -115,6 +123,51 @@ public class Matrix {
 			}
 		}
 		return at;
+	}
+
+	public boolean checkSymetry(double[][] matrix) {
+		if (matrix.length != matrix[0].length) {
+			return false;
+		}
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix[0].length; j++) {
+				if (matrix[j][i] != matrix[i][j]) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	public LUDecomposition choleski(double[][] matrix) {
+		assert checkSymetry(matrix) : "matrix is not symetric";
+		double[][] matrixL = new double[matrix.length][matrix.length];
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j <= i; j++) {
+				if (i == j) {
+					double sum = 0;
+					for (int k = 0; k < i; k++) {
+						sum += matrixL[i][k] * matrixL[i][k];
+					}
+					assert sum <= matrix[i][j] : "matrix is not Positive-definite "
+							+ toString(matrix);
+					double elem = Math.sqrt(matrix[i][j] - sum);
+					matrixL[i][j] = elem;
+				} else {
+					double sum = 0;
+					for (int k = 0; k < j; k++) {
+						sum += matrixL[j][k] * matrixL[i][k];
+					}
+					double elem = (matrix[j][i] - sum) / matrixL[j][j];
+					matrixL[i][j] = elem;
+				}
+			}
+		}
+		LUDecomposition result = new LUDecomposition();
+		result.setMatrixL(matrixL);
+		double[][] matrixU = transpose(matrixL);
+		result.setMatrixU(matrixU);
+		return result;
 	}
 
 	public String toString(double[][] matrix) {

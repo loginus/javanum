@@ -1,9 +1,14 @@
 package org.wterliko.javanum;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.wterliko.javanum.test.NumericTestUtils.assertMartixEquals;
 import static org.wterliko.javanum.test.NumericTestUtils.assertValueClose;
 import static org.wterliko.javanum.test.NumericTestUtils.assertVectorEquals;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -120,5 +125,69 @@ public class TestMatrix {
 		double[][] transposed1 = subject.transpose(a);
 		double[][] transposed2 = subject.transpose(transposed1);
 		assertMartixEquals(a, transposed2);
+	}
+
+	@Test
+	public void testcheckSymetry() throws Exception {
+		double[][] symetric = new double[][] { { 1, 2, 3 }, { 2, 5, 4 },
+				{ 3, 4, 7 } };
+		double[][] asymetric = new double[][] { { 1, 2, 3 }, { 2, 5, 4 },
+				{ 6, 4, 7 } };
+		double[][] notSquare = new double[][] { { 2, 3, 1, 4 },
+				{ -1, 2, 0, 1 }, { 2, 2, 0, 1 } };
+		assertTrue(subject.checkSymetry(symetric));
+		assertFalse(subject.checkSymetry(asymetric));
+		assertFalse(subject.checkSymetry(notSquare));
+	}
+
+	@Test
+	public void testCholeski() throws Exception {
+		double[][] matrix = new double[][] { { 1, 1, 1 }, { 1, 5, 5 },
+				{ 1, 5, 14 } };
+		System.out.println(subject.toString(matrix));
+		LUDecomposition choleski = subject.choleski(matrix);
+		double[][] expectedL = new double[][] { { 1, 0, 0 }, { 1, 2, 0 },
+				{ 1, 2, 3 } };
+		double[][] expectedU = new double[][] { { 1, 1, 1 }, { 0, 2, 2 },
+				{ 0, 0, 3 } };
+		assertMartixEquals(expectedL, choleski.getMatrixL());
+		assertMartixEquals(expectedU, choleski.getMatrixU());
+	}
+
+	@Test
+	public void testPerformance() throws Exception {
+		List<double[][]> matrices = new ArrayList<double[][]>();
+		for (int i = 0; i < 100; i++) {
+			matrices.add(subject.randomMatrix(500, 500));
+		}
+		List<double[]> vectors = new ArrayList<double[]>();
+		for (int i = 0; i < 100; i++) {
+			vectors.add(subject.randomVector(500));
+		}
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < 100; i++) {
+			subject.lu(matrices.get(i));
+		}
+		long end = System.currentTimeMillis();
+		System.out.println(end - start);
+	}
+
+	@Test
+	public void testJama() throws Exception {
+		List<Jama.Matrix> matrices = new ArrayList<Jama.Matrix>();
+		for (int i = 0; i < 100; i++) {
+			Jama.Matrix m = new Jama.Matrix(subject.randomMatrix(500, 500));
+			matrices.add(m);
+		}
+		List<Jama.Matrix> vectors = new ArrayList<Jama.Matrix>();
+		for (int i = 0; i < 100; i++) {
+			vectors.add(new Jama.Matrix(subject.randomVector(500), 500));
+		}
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < 100; i++) {
+			matrices.get(i).lu();
+		}
+		long end = System.currentTimeMillis();
+		System.out.println(end - start);
 	}
 }
