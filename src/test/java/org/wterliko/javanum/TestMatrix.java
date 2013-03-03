@@ -158,8 +158,8 @@ public class TestMatrix {
 
 	@Test
 	public void testCholeskiTransposition() throws Exception {
-		double[][] matrix = new double[][] { { 5, 3, 1 }, { 3, 2, 7 },
-				{ 1, 7, 8 } };
+		double[][] matrix = new double[][] { { 25, 15, 5 }, { 15, 13, 17 },
+				{ 5, 17, 114 } };
 		System.out.println(subject.toString(matrix));
 		LUDecomposition choleski = subject.choleski(matrix);
 		double[][] transposedL = subject.transpose(choleski.getMatrixL());
