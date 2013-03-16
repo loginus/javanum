@@ -24,6 +24,7 @@ public class DerivateCalculator {
 	}
 
 	public double derivate2(double[] x, int xk, int xl, Function func) {
+		double twoH = 2 * h;
 		double[] xModified = ArrayUtils.cloneArray(x);
 		// f(x+h,y+h)
 		xModified[xk] += h;
@@ -31,16 +32,16 @@ public class DerivateCalculator {
 		double fkl = func.evaluate(xModified);
 
 		// f(x-h,y+h)
-		xModified[xk] -= 2 * h;
+		xModified[xk] -= twoH;
 		double fl = func.evaluate(xModified);
 
 		// f(x+h,y-h)
-		xModified[xk] += 2 * h;
-		xModified[xl] -= 2 * h;
+		xModified[xk] += twoH;
+		xModified[xl] -= twoH;
 		double fk = func.evaluate(xModified);
 
 		// f(x-h,y-h)
-		xModified[xk] -= 2 * h;
+		xModified[xk] -= twoH;
 		double f = func.evaluate(xModified);
 
 		double value = (fkl - fl - fk + f) * inv4h2;

@@ -17,13 +17,6 @@ public class NumericTestUtils {
 	public static void assertVectorEquals(double[] expected, double[] actual) {
 		for (int i = 0; i < actual.length; i++) {
 			assertEquals(expected[i], actual[i], EPS);
-			// if (Math.abs(actual) < EPS) {
-			// assertTrue(expected + " != " + actual,
-			// Math.abs(expected - actual) < EPS);
-			// } else {
-			// assertTrue(expected + " != " + actual,
-			// Math.abs(1 - expected / actual) < EPS);
-			// }
 		}
 	}
 }
