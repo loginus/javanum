@@ -1,4 +1,4 @@
-package org.wterliko.javanum;
+package org.wterliko.javanum.interfaces;
 
 public interface Function {
 

@@ -1,10 +1,7 @@
 package org.wterliko.javanum;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.wterliko.javanum.test.NumericTestUtils.assertMartixEquals;
-import static org.wterliko.javanum.test.NumericTestUtils.assertValueClose;
 import static org.wterliko.javanum.test.NumericTestUtils.assertVectorEquals;
 
 import java.util.ArrayList;
@@ -14,15 +11,16 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.wterliko.javanum.Matrix.LUDecomposition;
+import org.wterliko.javanum.MatrixCalculator.LUDecomposition;
+import org.wterliko.javanum.test.NumericTestUtils;
 
 public class TestMatrix {
 
-	private Matrix subject;
+	private MatrixCalculator subject;
 
 	@Before
 	public void before() {
-		subject = new Matrix();
+		subject = new MatrixCalculator();
 	}
 
 	@Test
@@ -41,11 +39,11 @@ public class TestMatrix {
 		assertMartixEquals(new double[][] { { 5, 1 }, { 4, 2 } }, result);
 	}
 
-	@Test(expected = AssertionError.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testMultiplicationInvalidDimensions() throws Exception {
 		double[][] left = new double[][] { { 1, 0, 2 }, { -1, 3, 1 },
 				{ 2, 5, 5 } };
-		double[][] right = new double[][] { { 3, 1 }, { 2, 1 }, { 1, 0 } };
+		double[][] right = new double[][] { { 3, 1 }, { 2, 1 } };
 		subject.multiply(left, right);
 		fail();
 	}
@@ -89,14 +87,21 @@ public class TestMatrix {
 	public void testDetTriangle() throws Exception {
 		double[][] matrix = { { 1, 0, 0 }, { 5, 7, 0 }, { 2, 5, 7 } };
 		System.out.println(subject.toString(matrix));
-		assertValueClose(49.0, subject.detTriangle(matrix));
+		assertEquals(49.0, subject.detTriangle(matrix), NumericTestUtils.EPS);
 	}
 
 	@Test
 	public void testDet() throws Exception {
 		double[][] matrix = { { 5, 3, 2 }, { 1, 2, 0 }, { 3, 0, 4 } };
 		System.out.println(subject.toString(matrix));
-		assertValueClose(16, subject.det(matrix));
+		assertEquals(16, subject.det(matrix), NumericTestUtils.EPS);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testDetNotSquare() throws Exception {
+		double[][] matrix = { { 5, 3 }, { 1, 2 }, { 3, 0 } };
+		subject.det(matrix);
+		fail();
 	}
 
 	@Test
@@ -227,8 +232,8 @@ public class TestMatrix {
 		Set<Integer> rowsToEliminate = new HashSet<Integer>();
 		rowsToEliminate.add(2);
 		System.out.println(subject.toString(a));
-		assertValueClose(-3,
-				subject.minor(a, columnsToEliminate, rowsToEliminate));
+		assertEquals(-3, subject.minor(a, columnsToEliminate, rowsToEliminate),
+				NumericTestUtils.EPS);
 	}
 
 	@Test
@@ -241,7 +246,24 @@ public class TestMatrix {
 		rowsToEliminate.add(2);
 		rowsToEliminate.add(1);
 		System.out.println(subject.toString(a));
-		assertValueClose(2,
-				subject.minor(a, columnsToEliminate, rowsToEliminate));
+		assertEquals(2, subject.minor(a, columnsToEliminate, rowsToEliminate),
+				NumericTestUtils.EPS);
+	}
+
+	@Test
+	public void testMinus() throws Exception {
+		double[][] a = new double[][] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } };
+		double[][] b = new double[][] { { 1, 4, 1 }, { 2, -4, 8 }, { 1, 2, 0 } };
+		double[][] expectedResult = new double[][] { { 0, -2, 2 },
+				{ 2, 9, -2 }, { 6, 6, 9 } };
+		double[][] actualResult = subject.minus(a, b);
+		NumericTestUtils.assertMartixEquals(expectedResult, actualResult);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testMinusInvelidDimensions() throws Exception {
+		double[][] a = new double[][] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } };
+		double[][] b = new double[][] { { 1, 4, 1 }, { 2, -4, 8 } };
+		subject.minus(a, b);
 	}
 }

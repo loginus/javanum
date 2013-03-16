@@ -5,13 +5,13 @@ import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.util.Set;
 
-public class Matrix {
+public class MatrixCalculator {
 
 	/**
 	 * LU decompostion with Doolittle's method.
 	 * 
 	 * TODO This implementation is slow for bigger matrices approx 3x slower
-	 * than Jama for 500x500
+	 * than Jama for 500x500. For small matrices is faster.
 	 * 
 	 * @param matrix
 	 */
@@ -51,8 +51,11 @@ public class Matrix {
 	 * @param right
 	 */
 	public double[][] multiply(double[][] left, double[][] right) {
-		assert left[0].length == right.length : "martices has not proper dimensions and cannot be multiplied"
-				+ left[0].length + "!=" + right.length;
+		if (left[0].length != right.length) {
+			throw new IllegalArgumentException(
+					"Martices have not proper dimensions and cannot be multiplied"
+							+ left[0].length + "!=" + right.length);
+		}
 		double[][] product = new double[left.length][right[0].length];
 		for (int i = 0; i < left.length; i++) {
 			for (int j = 0; j < right[0].length; j++) {
@@ -66,13 +69,19 @@ public class Matrix {
 	}
 
 	public double det(double[][] matrix) {
-		assert matrix.length == matrix[0].length : "Matrix is not square "
-				+ matrix.length + " != " + matrix[0].length;
+		if (matrix.length != matrix[0].length) {
+			throw new IllegalArgumentException("Matrix is not square "
+					+ matrix.length + " != " + matrix[0].length);
+		}
 		LUDecomposition lu = lu(matrix);
 		return detTriangle(lu.getMatrixU());
 	}
 
 	public double detTriangle(double[][] tringleMatrix) {
+		if (tringleMatrix.length != tringleMatrix[0].length) {
+			throw new IllegalArgumentException("Matrix is not square "
+					+ tringleMatrix.length + " != " + tringleMatrix[0].length);
+		}
 		double det = 1;
 		for (int i = 0; i < tringleMatrix.length; i++) {
 			det *= tringleMatrix[i][i];
@@ -109,8 +118,10 @@ public class Matrix {
 	}
 
 	public double[] solve(double[][] a, double[] b) {
-		assert b.length == a.length;
-		assert a.length == a[0].length;
+		if (b.length != a.length || a.length != a[0].length) {
+			throw new IllegalArgumentException(
+					"Dimensions of matrices doesn't fit");
+		}
 		LUDecomposition lu = lu(a);
 		double[] z = solveTriangle(lu.getMatrixL(), b, true);
 		double[] x = solveTriangle(lu.getMatrixU(), z, false);
@@ -142,7 +153,9 @@ public class Matrix {
 	}
 
 	public LUDecomposition choleski(double[][] matrix) {
-		assert checkSymetry(matrix) : "matrix is not symetric";
+		if (!checkSymetry(matrix)) {
+			throw new IllegalArgumentException("matrix is not symetric");
+		}
 		double[][] matrixL = new double[matrix.length][matrix.length];
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j <= i; j++) {
@@ -151,8 +164,11 @@ public class Matrix {
 					for (int k = 0; k < i; k++) {
 						sum += matrixL[i][k] * matrixL[i][k];
 					}
-					assert sum <= matrix[i][j] : "matrix is not Positive-definite "
-							+ toString(matrix);
+					if (sum > matrix[i][j]) {
+						throw new IllegalArgumentException(
+								"matrix is not Positive-definite "
+										+ toString(matrix));
+					}
 					double elem = Math.sqrt(matrix[i][j] - sum);
 					matrixL[i][j] = elem;
 				} else {
@@ -174,8 +190,14 @@ public class Matrix {
 
 	public double minor(double[][] matix, Set<Integer> columnsToEliminate,
 			Set<Integer> rowsToEliminate) {
-		assert matix.length > rowsToEliminate.size();
-		assert matix[0].length > columnsToEliminate.size();
+		if (matix.length <= rowsToEliminate.size()
+				|| matix[0].length <= columnsToEliminate.size()) {
+			throw new IllegalArgumentException(
+					"Cannot eliminate so many rows matrix lenght:  "
+							+ matix.length + " row " + rowsToEliminate.size()
+							+ " columns to eliminate "
+							+ columnsToEliminate.size());
+		}
 		double[][] resultMatrix = new double[matix.length
 				- rowsToEliminate.size()][matix[0].length
 				- columnsToEliminate.size()];
@@ -193,8 +215,32 @@ public class Matrix {
 			}
 			k++;
 		}
-		System.out.println(toString(resultMatrix));
 		return det(resultMatrix);
+	}
+
+	public double[][] minus(double[][] left, double[][] right) {
+		if (left.length != right.length || left[0].length != right[0].length) {
+			throw new IllegalArgumentException(" left matrix is " + left.length
+					+ "x" + left[0].length + " while right " + right.length
+					+ "x" + right[0].length);
+		}
+		double[][] result = new double[left.length][left[0].length];
+		for (int i = 0; i < left.length; i++) {
+			result[i] = minus(left[i], right[i]);
+		}
+		return result;
+	}
+
+	public double[] minus(double[] left, double[] right) {
+		if (left.length != right.length) {
+			throw new IllegalArgumentException(" left vector has "
+					+ left.length + " elements while right " + right.length);
+		}
+		double[] result = new double[left.length];
+		for (int i = 0; i < left.length; i++) {
+			result[i] = left[i] - right[i];
+		}
+		return result;
 	}
 
 	public String toString(double[][] matrix) {
@@ -255,4 +301,5 @@ public class Matrix {
 			this.matrixU = matrixU;
 		}
 	}
+
 }

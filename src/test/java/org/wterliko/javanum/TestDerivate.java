@@ -1,17 +1,19 @@
 package org.wterliko.javanum;
 
-import static org.wterliko.javanum.test.NumericTestUtils.assertValueClose;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.wterliko.javanum.interfaces.Function;
+import org.wterliko.javanum.test.NumericTestUtils;
 
 public class TestDerivate {
 
-	private Derivate subject;
+	private DerivateCalculator subject;
 
 	@Before
 	public void before() {
-		subject = new Derivate();
+		subject = new DerivateCalculator();
 	}
 
 	@Test
@@ -122,7 +124,7 @@ public class TestDerivate {
 		while (x[0] < xmax) {
 			double actual = subject.derivate(x, 0, f);
 			double exptected = f1.evaluate(x);
-			assertValueClose(exptected, actual);
+			assertEquals(exptected, actual, NumericTestUtils.EPS);
 			x[0] += 0.1;
 		}
 	}
@@ -133,7 +135,7 @@ public class TestDerivate {
 			while (x[1] < xmax) {
 				double actual = subject.derivate2(x, 0, 1, f);
 				double exptected = f1.evaluate(x);
-				assertValueClose(exptected, actual);
+				assertEquals(exptected, actual, NumericTestUtils.EPS);
 				x[0] += 0.1;
 				x[1] += 0.1;
 			}

@@ -1,6 +1,8 @@
 package org.wterliko.javanum;
 
-public class Derivate {
+import org.wterliko.javanum.interfaces.Function;
+
+public class DerivateCalculator {
 
 	private final double h = 1e-5;
 	private final long inv4h2 = 2500000000L;
